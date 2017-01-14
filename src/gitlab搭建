@@ -1,0 +1,19 @@
+快速安装Gitlab并汉化，这篇文章写的非常好，http://www.jianshu.com/p/7a0d6917e009?mType=Group
+然后讲一下自己遇到的坑：
+1）在安装gitlab的时候直接按照它的连接去安装，就会安装最新的版本，但是最新的版本并没有汉化版本，这就是我后面在汉化的时候花费大量的时间的原因。
+解决这个问题比较好的方法就是在gitlab中文社区https://gitlab.com/larryli/gitlab找到有汉化版本的，下载其对应汉化版本的源代码
+然后在地址https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el6/里面下载对应该汉化版本的RPM包
+接着手动安装该RPM包，rpm -i xxx.rpm
+
+2）汉化问题
+按照该文章汉化的时候找不到稳定版和汉化版的git连接，只能直接下载，导致得不到汉化版和稳定版的差别文件，另一个比较好的方式就是直接将汉化版本直接替代安装版本的源文件，命令如下：
+\cp -rf 汉化版本目录/* /opt/gitlab/embedded/service/gitlab-rails/
+
+3)解决gitlab-ctl reconfigure问题
+发现could not connect to server: Connection refused，根据一般的尿性应该是数据库服务没有启动
+然后通过命令gitlab-ctl status postgresql查看postgresql服务是否启动
+接着通过命令gitlab-ctl start postgresql启动postgresql服务
+发现一直启动失败，cd /var/log/gitlab/postgresql，查看启动日志，less current，
+发现错误：pre-existing shared memory block (key 5432001, ID 3244032) is still in use和If you're sure there are no old server processes still running, remove the shared memory block or just delete the file "postmaster.pid".
+删除postmaster.pid
+重新启动postgresql成功之后，接着gitlab-ctl reconfigure完美解决问题
